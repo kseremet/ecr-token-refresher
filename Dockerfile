@@ -1,4 +1,4 @@
-FROM rhel7.3
+FROM registry.access.redhat.com/rhel7.3
 
 MAINTAINER Koray Seremet <koray@redhat.com>
 
