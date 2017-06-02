@@ -8,6 +8,6 @@ LABEL name="ecr-token-refresher" \
       io.k8s.description="Amazon ECR registry token refresher" \
       io.openshift.tags="openshift,aws,ecr"
 
-RUN pip install --upgrade pip awscli boto3
+RUN ["pip", "install", "--upgrade", "pip", "awscli", "boto3"]
 COPY scripts/ecr-token-refresher.sh /usr/local/bin
 CMD /usr/local/bin/ecr-token-refresher.sh
