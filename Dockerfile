@@ -1,4 +1,4 @@
-FROM openshift/python:3.5
+FROM rhel7.3
 
 MAINTAINER Koray Seremet <koray@redhat.com>
 
