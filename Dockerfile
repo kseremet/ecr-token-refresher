@@ -11,6 +11,6 @@ LABEL name="ecr-token-refresher" \
 ENV LD_LIBRARY_PATH=/opt/rh/rh-python35/root/usr/lib64/
 RUN export LD_LIBRARY_PATH=/opt/rh/rh-python35/root/usr/lib64:$LD_LIBRARY_PATH && \ 
     pip install --upgrade pip awscli boto3
-COPY scripts/ecr-token-refresher.sh /usr/local/bin
-RUN chmod 755 /usr/local/bin/ecr-token-refresher.sh
-CMD /usr/local/bin/ecr-token-refresher.sh
+COPY scripts/ecr-token-refresher.sh /opt/app-root/bin
+RUN chmod 755 /opt/app-root/bin/ecr-token-refresher.sh
+CMD /opt/app-root/bin/ecr-token-refresher.sh
