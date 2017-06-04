@@ -30,7 +30,7 @@ refresh_ecr_secrets(){
 
 # Exit if the secret that contains aws credentials file is not mounted to /.aws folder
 if [[ ! -f $HOME/.aws/credentials ]]; then
-  echo "AWS credentials (access key id & secret key) must be provided as a kubernetes secret and must be mounted onto /.aws"
+  echo "AWS credentials (access key id & secret key) must be provided as a kubernetes secret and must be mounted onto $HOME/.aws"
   sleep 10
   exit 1
 fi
