@@ -18,13 +18,33 @@ refresh_ecr_secrets(){
     fi
 
     echo "Updating secret $SECRET in project $PROJECT."
-    oc delete secret "$SECRET" -n "$PROJECT"
-    oc secrets new-dockercfg "$SECRET" -n "$PROJECT" \
+    oc project $PROJECT
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR. Failed to change current working project to $PROJECT! Please check and update rolebindings in project $PROJECT. Skipping..."
+      continue
+    fi
+
+    oc delete secret "$SECRET"
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR. Failed to delete secret $SECRET in project $PROJECT! Please check and update rolebindings. Skipping..."
+      continue
+    fi
+
+    oc secrets new-dockercfg "$SECRET" \
                              --docker-server="$REGISTRY" \
                              --docker-username="$USERNAME" \
                              --docker-password="$PASSWORD" \
                              --docker-email="$DOCKER_LOGIN_EMAIL"
-    oc label secret "$SECRET" "$REFRESHED_LABEL_KEY"=yes -n "$PROJECT"
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR. Failed to create secret $SECRET in project $PROJECT! Please check and update rolebindings. Skipping..."
+      continue
+    fi
+
+    oc label secret "$SECRET" "$REFRESHED_LABEL_KEY"=yes
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR. Failed to update labels on secret $SECRET in project $PROJECT! Please check and update rolebindings. Skipping..."
+      continue
+    fi
   done
 }
 
