@@ -24,13 +24,18 @@ refresh_ecr_secrets(){
       continue
     fi
 
-    oc delete secret "$SECRET"
+    # Get the existing labels of the secret
+    if [[ $(oc get secret $SECRET -n $PROJECT -o jsonpath={.metadata.labels}) =~ $LABELS_REGEX ]]; then
+      LABELS=$(echo ${BASH_REMATCH[1]} | tr ':' '=')
+    fi
+
+    oc delete secret "$SECRET" -n $PROJECT
     if [[ $? -ne 0 ]]; then
       echo "ERROR. Failed to delete secret $SECRET in project $PROJECT! Please check and update rolebindings. Skipping..."
       continue
     fi
 
-    oc secrets new-dockercfg "$SECRET" \
+    oc secrets new-dockercfg "$SECRET" -n $PROJECT \
                              --docker-server="$REGISTRY" \
                              --docker-username="$USERNAME" \
                              --docker-password="$PASSWORD" \
@@ -40,11 +45,16 @@ refresh_ecr_secrets(){
       continue
     fi
 
-    oc label secret "$SECRET" "$REFRESHED_LABEL_KEY"=yes
+    oc label secret "$SECRET" "$REFRESHED_LABEL_KEY"=yes -n $PROJECT
     if [[ $? -ne 0 ]]; then
       echo "ERROR. Failed to update labels on secret $SECRET in project $PROJECT! Please check and update rolebindings. Skipping..."
       continue
     fi
+
+    for LABEL in $LABELS
+    do
+      oc label secret "$SECRET" "$LABEL" -n $PROJECT
+    done
   done
 }
 
@@ -78,6 +88,7 @@ fi
 # Amazon ECR tokens are valid only for 12 hours. So we will refresh token ever 11hrs 50min
 REFRESH_INTERVAL=$[(11 * 3600) + (50 * 60)]
 DOCKER_LOGIN_REGEX="^docker\s+login\s+-u\s+(\S+)\s+-p\s+(\S+)\s+-e\s+\S+\s+(\S+)$"
+LABELS_REGEX="map\[(.+)\]"
 
 NEXT_REFRESH_TIME=0
 
