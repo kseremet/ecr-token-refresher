@@ -8,7 +8,7 @@ LABEL name="ecr-token-refresher" \
       io.k8s.description="Amazon ECR registry token refresher" \
       io.openshift.tags="openshift,aws,ecr"
 
-USER ROOT
+USER root
 ENV LD_LIBRARY_PATH=/opt/rh/rh-python35/root/usr/lib64/
 RUN export LD_LIBRARY_PATH=/opt/rh/rh-python35/root/usr/lib64:$LD_LIBRARY_PATH && \ 
     pip install --upgrade pip awscli boto3 && \
