@@ -5,7 +5,7 @@ refresh_ecr_secrets(){
 
   # Find the newly created secrets
   ECR_SECRETS=$(oc get secret -l "$LABEL_SELECTOR" --all-namespaces \
-              --template='{{range .items}}{{.metadata.namespace}}#{{.metadata.name}}#{{.metadata.creationTimestamp}} {{end}}')
+              --template='{{range .items}}{{.metadata.namespace}}#{{.metadata.name}}#{{.metadata.creationTimestamp}} {{end}}' 2>/dev/null)
 
   for ECR_SECRET in $ECR_SECRETS
   do
@@ -97,7 +97,7 @@ do
   NOW=$(date +%s)
 
   if [[ $NEXT_REFRESH_TIME -le $NOW ]]; then
-    echo "It's time to refresh ECR token and refresh all ecr secrets in all projects."
+    echo "[$(date)] It's time to refresh ECR token and refresh all ecr secrets in all projects."
 
     DOCKER_LOGIN=$(aws ecr get-login)
     if [[ ! $DOCKER_LOGIN =~ $DOCKER_LOGIN_REGEX ]]; then
@@ -114,6 +114,7 @@ do
   else
     # Find and update only newly created secrets
     # Newly created secrets should not have the refreshed label key
+    echo "[$(date)] Scanning all projects for any new ECR secret."
     refresh_ecr_secrets "$SECRET_LABEL_SELECTOR,!$REFRESHED_LABEL_KEY"
   fi
 
