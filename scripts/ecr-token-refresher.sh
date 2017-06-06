@@ -17,7 +17,7 @@ refresh_ecr_secrets(){
       continue
     fi
 
-    echo "Updating secret $SECRET in project $PROJECT."
+    echo "[$(date)] Updating secret $SECRET in project $PROJECT."
     oc project $PROJECT
     if [[ $? -ne 0 ]]; then
       echo "ERROR. Failed to change current working project to $PROJECT! Please check and update rolebindings in project $PROJECT. Skipping..."
@@ -53,7 +53,7 @@ refresh_ecr_secrets(){
 
     for LABEL in $LABELS
     do
-      oc label secret "$SECRET" "$LABEL" -n $PROJECT
+      oc label --overwrite secret "$SECRET" "$LABEL" -n $PROJECT
     done
   done
 }
@@ -67,7 +67,7 @@ fi
 
 # Set scan frequency to 60 seconds if it's not defined already
 if [[ -z $SCAN_FREQUENCY ]]; then
-  SCAN_FREQUENCY=60
+  SCAN_FREQUENCY=300
 fi
 
 # Set label selector of all secrets to ecr=yes, if it's not defined already
